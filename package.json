@@ -1,0 +1,15 @@
+{
+  "name": "dispatch-seo-article",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Keeta article staging and DispatchSEO workflow repository",
+  "type": "module",
+  "packageManager": "npm@10.9.4",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/content.mjs",
+    "validate": "node scripts/content.mjs --check",
+    "test": "node --test scripts/content.test.mjs",
+    "export:official": "node scripts/content.mjs"
+  }
+}

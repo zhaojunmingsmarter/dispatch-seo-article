@@ -1,0 +1,3 @@
+# Local artifact inspection; future tool work must add its actual renderer.
+command=node scripts/serve-artifacts.mjs
+port=4173
