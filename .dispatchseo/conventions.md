@@ -16,6 +16,12 @@ Staging: Node 22, npm 10.9.4, dependency-free JSON/HTML articles. `npm ci`; veri
 
 Existing website: React 18 + TypeScript + Nine. Separate repository and release process; its remote-script build has not been run by this installer (`docs/publishing.md`). Do not scaffold a second blog or assume Next.js/MDX/pnpm. Backend: local `127.0.0.1:3000`; GitHub-hosted phone-home schedules must be disabled after install merges (`.github/mcp-codex.toml`). Exception: `seo-token-check.yml` runs daily on the owner's Mac using the dedicated `dispatchseo-local-health` runner label. It must verify credential liveness and successful dashboard reporting; keep PR-triggered jobs on GitHub-hosted runners. Preserve this runner adaptation when updating the pipeline pack.
 
+Local backend cron: `.github/workflows/local-hourly-gsc.yml` uses the same
+`dispatchseo-local-health` runner every three hours at :07 to trigger the
+backend's GSC endpoint. Its instance credential is stored only in the encrypted
+`DISPATCHSEO_LOCAL_CRON_SECRET` Actions secret. A healthy cron can still report
+an explicit GSC setup skip; that is not evidence of fresh GSC data.
+
 ## Guides
 
 Files: `content/guides/{en,pt-BR}/<id>.json`. Full required BlogPosting contract and policies are in `docs/publishing.md` and enforced by `scripts/content.mjs`: id/filename, headline <=120 chars, description <=160, locale, dates, canonical, author/publisher, image, HTML body, section, keywords, numeric reading time and word count. No MDX/frontmatter. New slugs use lowercase ASCII kebab-case. Separate editorial review per locale.
