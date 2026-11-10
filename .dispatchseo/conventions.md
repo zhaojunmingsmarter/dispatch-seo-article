@@ -14,7 +14,7 @@ Facets, in order: food delivery for customers; restaurant delivery partnerships;
 
 Staging: Node 22, npm 10.9.4, dependency-free JSON/HTML articles. `npm ci`; verify with `npm test && npm run build` and `git diff --check` (`package.json`, `.nvmrc`, `.github/workflows/content-check.yml`). Build emits additions-only JSON, not a website. Exact install and build commands have run successfully.
 
-Existing website: React 18 + TypeScript + Nine. Separate repository and release process; its remote-script build has not been run by this installer (`docs/publishing.md`). Do not scaffold a second blog or assume Next.js/MDX/pnpm. Backend: local `127.0.0.1:3000`; GitHub-hosted phone-home schedules must be disabled after install merges (`.github/mcp-codex.toml`).
+Existing website: React 18 + TypeScript + Nine. Separate repository and release process; its remote-script build has not been run by this installer (`docs/publishing.md`). Do not scaffold a second blog or assume Next.js/MDX/pnpm. Backend: local `127.0.0.1:3000`; GitHub-hosted phone-home schedules must be disabled after install merges (`.github/mcp-codex.toml`). Exception: `seo-token-check.yml` runs daily on the owner's Mac using the dedicated `dispatchseo-local-health` runner label. It must verify credential liveness and successful dashboard reporting; keep PR-triggered jobs on GitHub-hosted runners. Preserve this runner adaptation when updating the pipeline pack.
 
 ## Guides
 

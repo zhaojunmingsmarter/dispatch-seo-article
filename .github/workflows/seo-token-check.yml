@@ -17,17 +17,25 @@ on:
 
 jobs:
   health:
-    runs-on: ubuntu-latest
-    # continue-on-error at JOB level: a failure still runs the failure() steps
-    # and still reports to the dashboard rails, but the RUN concludes green so
-    # GitHub never emails the repo owner "Run failed". The dashboard Home
-    # banner / get_cron_health are the alerting surface for these runs.
-    continue-on-error: true
+    # This backend lives on the owner's Mac. Only this scheduled/manual health
+    # check uses its dedicated runner; PR jobs keep using GitHub-hosted runners.
+    if: github.repository == 'zhaojunmingsmarter/dispatch-seo-article' && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    runs-on: dispatchseo-local-health
     timeout-minutes: 10
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
+
+      - name: Verify local backend and project key
+        env:
+          SEO_MCP_API_KEY: ${{ secrets.SEO_MCP_API_KEY }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body -sS --max-time 30 \
+            -H "Authorization: Bearer $SEO_MCP_API_KEY" \
+            http://127.0.0.1:3000/api/project-mode > "$RUNNER_TEMP/project-mode.json"
+          jq -e '.agent | IN("claude", "codex", "cursor")' "$RUNNER_TEMP/project-mode.json" > /dev/null
 
       # >>> agent-steps: resolve (GENERATED - edit scripts/agent-ci/ and regenerate; never edit between these markers)
       # Which agent's credential to prove. Resolved at RUN time from the
@@ -252,3 +260,15 @@ jobs:
               --data-urlencode "fail=pipeline update available (installed $installed, current $current) - re-run the setup command to apply" \
               "http://127.0.0.1:3000/api/cron/deploy-check" || true
           fi
+
+      - name: Verify dashboard report delivery
+        if: success()
+        env:
+          SEO_MCP_API_KEY: ${{ secrets.SEO_MCP_API_KEY }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body -sSG --max-time 30 \
+            -H "Authorization: Bearer $SEO_MCP_API_KEY" \
+            --data-urlencode "job=seo-token-check" --data-urlencode "ok=1" \
+            http://127.0.0.1:3000/api/cron/deploy-check > "$RUNNER_TEMP/report.json"
+          jq -e '.job == "seo-token-check--www" and .recorded == "ok"' "$RUNNER_TEMP/report.json"

@@ -31,3 +31,14 @@ Installed instruction version: `2026-09-27.1`. Pack version: `.dispatchseo/pipel
 The connected backend is local (`http://127.0.0.1:3000`). GitHub-hosted jobs cannot call it. After the install PR merges, disable the phone-home workflows as directed by the install playbook; keep the canary and tool validator enabled. The local builder requires the dashboard's automatic-build credential configuration. `.dispatchseo/serve` exposes JSON artifacts for local inspection only, not public article or tool pages.
 
 IndexNow is an optional future integration; no IndexNow workflow was installed.
+
+The daily SEO health check uses a dedicated self-hosted macOS runner labeled
+`dispatchseo-local-health`, so it can reach the local backend. It runs only from
+`main` on its daily schedule (12:18 Asia/Shanghai) or manual dispatch. Other
+phone-home workflows remain disabled. The Mac must be awake, logged in, and
+serving DispatchSEO on port 3000 for the check to complete. Its runner is managed
+by the GitHub runner LaunchAgent; installation files live outside this repo at
+`~/.local/share/dispatchseo-health-runner`. Use `./svc.sh status`, `./svc.sh stop`,
+or `./svc.sh start` there to manage it. A successful run requires the Codex key
+check and an acknowledged report for `seo-token-check--www`; workflow success
+must not hide failed steps or an unreachable reporting endpoint.
