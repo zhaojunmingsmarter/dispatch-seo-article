@@ -34,13 +34,19 @@ IndexNow is an optional future integration; no IndexNow workflow was installed.
 
 The daily SEO health check uses a dedicated self-hosted macOS runner labeled
 `dispatchseo-local-health`, so it can reach the local backend. It runs only from
-`main` on its daily schedule (12:18 Asia/Shanghai) or manual dispatch. The same
-runner triggers `/api/cron/hourly-gsc` every three hours at :07 via
-`local-hourly-gsc.yml`, using the encrypted `DISPATCHSEO_LOCAL_CRON_SECRET`
-repository secret. Other phone-home workflows remain disabled. The Mac must be awake, logged in, and
+`main` on its daily schedule (12:18 Asia/Shanghai) or manual dispatch.
+Backend GSC scheduling is now owned by the backend's native cron worker, which
+reads the same UTC schedule as its Docker cron service. The fallback
+`local-hourly-gsc.yml` workflow is disabled to prevent duplicate triggers.
+Other phone-home workflows remain disabled. The Mac must be awake, logged in, and
 serving DispatchSEO on port 3000 for the check to complete. Its runner is managed
 by the GitHub runner LaunchAgent; installation files live outside this repo at
 `~/.local/share/dispatchseo-health-runner`. Use `./svc.sh status`, `./svc.sh stop`,
 or `./svc.sh start` there to manage it. A successful run requires the Codex key
 check and an acknowledged report for `seo-token-check--www`; workflow success
 must not hide failed steps or an unreachable reporting endpoint.
+
+Local and server deployments use the same backend code but independent runtime
+configuration, databases, and schedulers. See `DispatchSEO/docs/NATIVE_CRON.md`
+in the backend repository for native Node/PM2 and Docker startup. Server backend
+crons do not depend on this Mac runner.
